@@ -13,6 +13,6 @@ clean:
 	rm -rf modules.order Module.symvers
 .PHONY:modules clean
 else
-	obj-m := openfpgadunino.o
-    openfpgadunino-objs :openfpgadunino.o
+	obj-m := openfpgaduino.o
+    openfpgaduino-objs :openfpgaduino.o
 endif

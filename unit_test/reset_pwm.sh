@@ -1,6 +1,6 @@
-echo 0x03030300 > /sys/kernel/debug/openfpgadunino/power
-echo 0xFFFFFFFF > /sys/kernel/debug/openfpgadunino/gpio1/doe
-PWMDIR=/sys/kernel/debug/openfpgadunino
+echo 0x03030300 > /sys/kernel/debug/openfpgaduino/power
+echo 0xFFFFFFFF > /sys/kernel/debug/openfpgaduino/gpio1/doe
+PWMDIR=/sys/kernel/debug/openfpgaduino
 
 LIST=`find $PWMDIR -name "pwm*"`
 

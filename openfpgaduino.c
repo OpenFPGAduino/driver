@@ -1,5 +1,5 @@
 /*
- * Demonstration of the use of debugfs with openfpgadunino
+ * Demonstration of the use of debugfs with openfpgaduino
  *
  * Author: Zhizhou Li <lzz@meteroi.com>
  *         
@@ -77,7 +77,7 @@ static int device_open(struct inode *, struct file *);
 static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
-static int map_openfpgadunino(struct file *filp, struct vm_area_struct *vma);
+static int map_openfpgaduino(struct file *filp, struct vm_area_struct *vma);
 
 struct file_operations fops_mem = {
 	.owner   = THIS_MODULE,
@@ -85,7 +85,7 @@ struct file_operations fops_mem = {
 	.write = device_write,
 	.open = device_open,
 	.release = device_release,
-	.mmap    = map_openfpgadunino
+	.mmap    = map_openfpgaduino
  };
 
 static struct subsystem subsystems[MAX_SUBSYSTEMS];
@@ -123,7 +123,7 @@ static struct debugfs_blob_wrapper registry_blob = {
 
 struct resource * fpga;
 
-static struct dentry *openfpgadunino_dentry;
+static struct dentry *openfpgaduino_dentry;
 static struct dentry *fpga_dentry;
 
 char parent_name[MAX_PARENT_NAME]; // for generating names
@@ -226,7 +226,7 @@ void create_registry_entry(u8 size, char* parent_name, char* name, u32 addr, u32
 
  void create_root(struct dentry * root, u32 addr)
  {
- 	strcpy(parent_name, "openfpgadunino"); // strlen(openfpgadunino) << MAX_PARENT_NAME
+ 	strcpy(parent_name, "openfpgaduino"); // strlen(openfpgaduino) << MAX_PARENT_NAME
  	CREATE_CHANNEL_FILE(16, "id", 0x0);
 	CREATE_CHANNEL_FILE(16, "flag", 0x2);
 	CREATE_CHANNEL_FILE(32, "ver", 0x4);
@@ -442,9 +442,9 @@ static irqreturn_t irq_interrupt_irq0(int irq, void *dev_id, struct pt_regs *reg
 }
 
 static int __init
-openfpgadunino_init(void)
+openfpgaduino_init(void)
 {
-	struct dentry *openfpgadunino_subsystem_dentry;
+	struct dentry *openfpgaduino_subsystem_dentry;
 	int subsystem_id = 0;
 	int result;
 
@@ -453,13 +453,13 @@ openfpgadunino_init(void)
 	u8 pwm_id = 0;
 	u8 gpio_id = 0;
 
-	printk(KERN_INFO "openfpgadunino module loading\n");
+	printk(KERN_INFO "openfpgaduino module loading\n");
 
-	openfpgadunino_dentry = debugfs_create_dir(
-		"openfpgadunino",
+	openfpgaduino_dentry = debugfs_create_dir(
+		"openfpgaduino",
 		NULL);
-	if(openfpgadunino_dentry == NULL) {
-		printk(KERN_ERR "Could not create root directory entry openfpgadunino in debugfs");
+	if(openfpgaduino_dentry == NULL) {
+		printk(KERN_ERR "Could not create root directory entry openfpgaduino in debugfs");
 		return -EINVAL;
 	}
 
@@ -564,23 +564,23 @@ openfpgadunino_init(void)
 	debugfs_create_file(
 		"irq",
 		S_IRWXU | S_IRWXG | S_IRWXO,
-		openfpgadunino_dentry,
+		openfpgaduino_dentry,
 		&irq,
 		&fops_mem
 		);
 
     //init_fpga_config_io();
 
-	//fpga = request_mem_region(FPGA_BASE_ADDR, SIZE16MB, "openfpgadunino FPGA LEDs");
+	//fpga = request_mem_region(FPGA_BASE_ADDR, SIZE16MB, "openfpgaduino FPGA LEDs");
 	sys_subsystem.vaddr = (u32) fpga_cs0_base;
 	mod_subsystem.vaddr = (u32) fpga_cs1_base;
 
-	create_root(openfpgadunino_dentry, sys_subsystem.vaddr);
+	create_root(openfpgaduino_dentry, sys_subsystem.vaddr);
 
 	debugfs_create_file(
 		"sysmem",
 		S_IRWXU | S_IRWXG | S_IRWXO,
-		openfpgadunino_dentry,
+		openfpgaduino_dentry,
 		&sys_subsystem,
 		&fops_mem
 		);
@@ -588,21 +588,21 @@ openfpgadunino_init(void)
 	debugfs_create_file(
 		"modmem",
 		S_IRWXU | S_IRWXG | S_IRWXO,
-		openfpgadunino_dentry,
+		openfpgaduino_dentry,
 		&mod_subsystem,
 		&fops_mem
 		);
 
 
 	for(i=0; i<4; i++) {
-		create_led(i, openfpgadunino_dentry, sys_subsystem.vaddr);
+		create_led(i, openfpgaduino_dentry, sys_subsystem.vaddr);
 	}
 
 	current_addr = fpga_cs1_base;
 
 	while(true) {
 		if(subsystem_id == MAX_SUBSYSTEMS) {
-			printk(KERN_INFO "openfpgadunino ended detection, maximum found %d\n",
+			printk(KERN_INFO "openfpgaduino ended detection, maximum found %d\n",
 				MAX_SUBSYSTEMS);
 			break;
 		}
@@ -611,10 +611,10 @@ openfpgadunino_init(void)
 		subsystems[subsystem_id].offset = current_addr - fpga_cs1_base;
 
 		if((subsystems[subsystem_id].id & 0xea000000) == 0xea000000) {
-			printk(KERN_INFO "openfpgadunino adding subsystem 0x%x of type 0x%x at 0x%x\n",
+			printk(KERN_INFO "openfpgaduino adding subsystem 0x%x of type 0x%x at 0x%x\n",
 				subsystem_id, subsystems[subsystem_id].id, (u32)current_addr);
 		} else {
-			printk(KERN_INFO "openfpgadunino ended detection, found 0x%x\n",
+			printk(KERN_INFO "openfpgaduino ended detection, found 0x%x\n",
 				subsystems[subsystem_id].id);
 			break;
 		}
@@ -631,15 +631,15 @@ openfpgadunino_init(void)
 
 		switch(subsystems[subsystem_id].id) {
 			case GPIO_SUBSYSTEM:
-				openfpgadunino_subsystem_dentry = create_channel_gpio(
+				openfpgaduino_subsystem_dentry = create_channel_gpio(
 					gpio_id++,
-					openfpgadunino_dentry,
+					openfpgaduino_dentry,
 					subsystems[subsystem_id].vaddr);
 				break;
 			case PWM_SUBSYSTEM:
-				openfpgadunino_subsystem_dentry = create_channel_pwm(
+				openfpgaduino_subsystem_dentry = create_channel_pwm(
 					pwm_id++,
-					openfpgadunino_dentry,
+					openfpgaduino_dentry,
 					subsystems[subsystem_id].vaddr);
 				break;
 			default:
@@ -651,19 +651,19 @@ openfpgadunino_init(void)
 		debugfs_create_x32(
 			"size",
 			S_IRWXU | S_IRWXG | S_IRWXO,
-			openfpgadunino_subsystem_dentry,
+			openfpgaduino_subsystem_dentry,
 			&subsystems[subsystem_id].size);
 
 		debugfs_create_x32(
 			"id",
 			S_IRWXU | S_IRWXG | S_IRWXO,
-			openfpgadunino_subsystem_dentry,
+			openfpgaduino_subsystem_dentry,
 			&subsystems[subsystem_id].id);
 
 		debugfs_create_x32(
 			"addr",
 			S_IRWXU | S_IRWXG | S_IRWXO,
-			openfpgadunino_subsystem_dentry,
+			openfpgaduino_subsystem_dentry,
 			&subsystems[subsystem_id].vaddr);
 
 
@@ -676,13 +676,13 @@ openfpgadunino_init(void)
 	debugfs_create_blob(
 		"registry",
 		S_IRWXU | S_IRWXG | S_IRWXO,
-		openfpgadunino_dentry,
+		openfpgaduino_dentry,
 		&registry_blob);
 	return 0;
 }
 
 static int
-map_openfpgadunino(struct file *filp, struct vm_area_struct *vma)
+map_openfpgaduino(struct file *filp, struct vm_area_struct *vma)
 {
 	long unsigned int size = vma->vm_end - vma->vm_start;
 	long unsigned int target_size = PAGE_SIZE;
@@ -726,10 +726,10 @@ map_openfpgadunino(struct file *filp, struct vm_area_struct *vma)
 
 
 void __exit
-openfpgadunino_cleanup(void)
+openfpgaduino_cleanup(void)
 {
-	printk(KERN_INFO "openfpgadunino module uninstalling\n");
-	debugfs_remove_recursive(openfpgadunino_dentry);
+	printk(KERN_INFO "openfpgaduino module uninstalling\n");
+	debugfs_remove_recursive(openfpgaduino_dentry);
 	debugfs_remove_recursive(fpga_dentry);
 	//release_mem_region(FPGA_BASE_ADDR, SIZE16MB);
 	return;
@@ -854,5 +854,5 @@ static ssize_t device_write(struct file *filp,
 
 MODULE_LICENSE("GPL");
 
-module_init(openfpgadunino_init);
-module_exit(openfpgadunino_cleanup);
+module_init(openfpgaduino_init);
+module_exit(openfpgaduino_cleanup);
