@@ -11,13 +11,13 @@ On the target system mount debugfs if needed:
 
 Install module:
 
-	copy the openfgpadunino.ko to the broad	
-	rmmod openfgpadunino
-	insmod openfgpadunino.ko
+	copy the openfpgaduino.ko to the broad	
+	rmmod openfpgaduino
+	insmod openfpgaduino.ko
 
 Check discovered subsystems:
 
-	tree /sys/kernel/debug/openfgpadunino
+	tree /sys/kernel/debug/openfpgaduino
 
 
 Test the module
