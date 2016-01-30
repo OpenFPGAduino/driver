@@ -16,3 +16,5 @@ else
 	obj-m := openfpgaduino.o
     openfpgaduino-objs :openfpgaduino.o
 endif
+format:
+	find . -name "*.c" -exec astyle {} \;	 
