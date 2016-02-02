@@ -17,4 +17,5 @@ else
     openfpgaduino-objs :openfpgaduino.o
 endif
 format:
-	find . -name "*.c" -exec astyle {} \;	 
+	find . -name "*.c" -exec astyle -n {} \;
+	find . -name "*.h" -exec astyle -n {} \;	 
